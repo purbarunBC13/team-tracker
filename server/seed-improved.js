@@ -139,7 +139,16 @@ const seedUsers = async () => {
       },
     ];
 
-    const createdUsers = await User.insertMany(users);
+    // Hash all passwords before insertion
+    console.log("🔐 Hashing passwords...");
+    const usersWithHashedPasswords = await Promise.all(
+      users.map(async (user) => ({
+        ...user,
+        password: await bcrypt.hash(user.password, 12),
+      }))
+    );
+
+    const createdUsers = await User.insertMany(usersWithHashedPasswords);
     console.log(`✅ Created ${createdUsers.length} users`);
     return createdUsers;
   } catch (error) {
@@ -471,7 +480,7 @@ const seedTasks = async (users, projects) => {
         title: "API Documentation & Testing",
         description:
           "Create comprehensive API documentation using OpenAPI/Swagger and implement automated testing suites for all endpoints.",
-        assignee_id: members[6]._id, // Maria Garcia
+        assignee_id: members[4]._id, // Maria Garcia
         project_id: projects[2]._id,
         status: "todo",
         priority: "medium",
@@ -484,7 +493,7 @@ const seedTasks = async (users, projects) => {
         title: "Data Model & Schema Design",
         description:
           "Design the data models and database schema for analytics data storage, including fact tables, dimension tables, and data relationships.",
-        assignee_id: members[7]._id, // Robert Brown
+        assignee_id: members[5]._id, // Robert Brown
         project_id: projects[3]._id,
         status: "completed",
         priority: "high",
@@ -550,7 +559,7 @@ const seedTasks = async (users, projects) => {
         title: "GDPR Compliance Implementation",
         description:
           "Implement GDPR compliance measures including data encryption, user consent management, and data deletion capabilities.",
-        assignee_id: members[6]._id, // Maria Garcia
+        assignee_id: members[4]._id, // Maria Garcia
         project_id: projects[4]._id,
         status: "todo",
         priority: "high",
@@ -611,7 +620,7 @@ const seedTasks = async (users, projects) => {
         title: "Team Onboarding Documentation",
         description:
           "Create comprehensive onboarding documentation for new team members including setup guides, coding standards, and workflow documentation.",
-        assignee_id: members[6]._id, // Maria Garcia
+        assignee_id: members[4]._id, // Maria Garcia
         project_id: null,
         status: "in-progress",
         priority: "low",
@@ -619,7 +628,7 @@ const seedTasks = async (users, projects) => {
         createdBy: managers[0]._id,
         comments: [
           {
-            author: members[6]._id,
+            author: members[4]._id,
             text: "Working on the development environment setup guide. Should have the first draft ready by Friday.",
             timestamp: getRandomDate(-3),
           },

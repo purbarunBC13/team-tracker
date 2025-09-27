@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import api from "../lib/api";
 import { Project } from "../types";
 import { useToast } from "../components/ui/toast";
+import { useAuth } from "./AuthContext";
 
 interface ProjectContextType {
   projects: Project[];
@@ -26,6 +27,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { user, isLoading: authLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -207,10 +209,12 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
-  // Fetch projects on mount
+  // Fetch projects on mount, but only when user is authenticated
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (user && !authLoading) {
+      fetchProjects();
+    }
+  }, [user, authLoading]);
 
   const value: ProjectContextType = {
     projects,

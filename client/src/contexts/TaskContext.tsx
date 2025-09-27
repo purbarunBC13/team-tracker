@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import api from "../lib/api";
 import { Task } from "../types";
 import { useToast } from "../components/ui/toast";
+import { useAuth } from "./AuthContext";
 
 interface TaskContextType {
   tasks: Task[];
@@ -30,6 +31,7 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { user, isLoading: authLoading } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -247,10 +249,12 @@ export const TaskProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
-  // Fetch tasks on mount
+  // Fetch tasks on mount, but only when user is authenticated
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (user && !authLoading) {
+      fetchTasks();
+    }
+  }, [user, authLoading]);
 
   const value: TaskContextType = {
     tasks,

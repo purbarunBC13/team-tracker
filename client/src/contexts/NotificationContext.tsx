@@ -9,6 +9,7 @@ import React, {
 import { PopulatedNotification } from "../types";
 import { notificationAPI } from "../lib/api";
 import { useToast } from "../components/ui/toast";
+import { useAuth } from "./AuthContext";
 
 interface NotificationContextType {
   notifications: PopulatedNotification[];
@@ -50,6 +51,7 @@ interface NotificationProviderProps {
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   children,
 }) => {
+  const { user, isLoading: authLoading } = useAuth();
   const [notifications, setNotifications] = useState<PopulatedNotification[]>(
     []
   );
@@ -229,16 +231,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     await fetchUnreadCount();
   }, [fetchNotifications, fetchUnreadCount]);
 
-  // Fetch initial data and set up polling for unread count
+  // Fetch initial data on component mount, but only when user is authenticated
   useEffect(() => {
-    fetchNotifications({ limit: 10 });
-    fetchUnreadCount();
-
-    // Poll for unread count every 30 seconds
-    const interval = setInterval(fetchUnreadCount, 30000);
-
-    return () => clearInterval(interval);
-  }); // Empty dependency array for initial load only
+    if (user && !authLoading) {
+      fetchNotifications({ limit: 10 });
+      fetchUnreadCount();
+    }
+  }, [user, authLoading, fetchNotifications, fetchUnreadCount]);
 
   const value: NotificationContextType = {
     notifications,
