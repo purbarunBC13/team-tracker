@@ -1,13 +1,16 @@
 FROM node:18-alpine
 
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
 # Create app directory
 WORKDIR /usr/src/app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies and rebuild native modules
+RUN npm ci --only=production && npm rebuild bcrypt --build-from-source
 
 # Copy source code
 COPY . .

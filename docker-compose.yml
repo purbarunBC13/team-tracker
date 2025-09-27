@@ -7,9 +7,13 @@ services:
       - backend
 
   backend:
-    build: ./server
+    image: team-tracker-server
     ports:
       - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://db:27017/team-tracker
+      - NODE_ENV=production
+      - JWT_SECRET=your-super-secure-jwt-secret-key-change-this-in-production
     depends_on:
       - db
 
@@ -17,3 +21,8 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
